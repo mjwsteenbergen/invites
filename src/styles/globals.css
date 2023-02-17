@@ -1,0 +1,51 @@
+
+
+:root {
+  --color-bg: rgb(254, 254, 254);
+  --color-bg-darker: rgb(141, 141, 141);
+
+
+  --color-accent: #b40000;
+  --color-accent-white: #ffc6c6;
+  --color-accent-lighter: #EF3F3F;
+  --color-accent-light: #ff0101;
+  --color-accent-dark: #680000;
+  --color-accent-slightly-dark: #a20000;
+
+  --color-foreground: black;
+  --color-foreground-flipped: white;
+
+  --color-gray: rgba(100, 100, 111, 0.2);
+  --color-dark-gray: rgba(69, 69, 77, 0.603);
+
+  --font-title-family: 'Geometria', 'Geometria-light', sans-serif;
+  --font-base: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-base);
+}
+
+p,
+li,
+summary,
+button,
+input,
+details {
+  font-family: var(--font-base);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-title-family);
+}
+
+a {
+  font-family: var(--font-base);
+  color: inherit;
+  border-bottom: 2px solid grey;
+  text-decoration: none;
+}
