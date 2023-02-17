@@ -45,7 +45,7 @@ export default function Page() {
                 <main className={styles.main}>
                     {data ? <CalendarView evId={id} alias={name} {...data} /> : <div>
                         <h1 className={styles.loadingheader}>Loading data...</h1>
-                        <p>If this takes too long, please refresh.<br /> If that doesn't work, poke Martijn</p>
+                        <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn</p>
                     </div>}
                 </main>
             </div>
@@ -80,7 +80,7 @@ const CalendarView = ({ location, locationUrl, startDate, name, inviteState, ali
                 timeZoneName: "short"
             })}</p>
             {location ? (<><div>🏡</div>
-                <p>{location} {locationUrl ? <a href="https://nntn.nl/" target="_blank" className={styles.car}>🚗</a> : ""}</p></>) : <></>}
+                <p>{location} {locationUrl ? <a href="https://nntn.nl/" target="_blank" rel="noreferrer" className={styles.car}>🚗</a> : ""}</p></>) : <></>}
             
         </div>
     </section>
@@ -97,7 +97,7 @@ type FormViewProps = Pick<InviteDataResponse, "inviteState"> & InviteRoute;
 const FormView = ({ evId, alias , inviteState }: FormViewProps) => {
     const [email, setEmail] = useState<string | undefined>(undefined);
     if (inviteState === "invited") {
-        return <h2 className={styles.loadingheader}>You've been invited!</h2>
+        return <h2 className={styles.loadingheader}>You{"'"}ve been invited!</h2>
     } else if (inviteState === 'confirming') {
         return <p className={styles.verify}>To make sure my invites are not abused I need to verify everything. <br/>Please hold on</p>
     } else if (inviteState === 'not-invited') {
