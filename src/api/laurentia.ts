@@ -16,6 +16,7 @@ type BaseRequest = {
 
 type DataRequest = {
     mode: "get"
+    email: string;
 } & BaseRequest;
 
 type InviteRequest = {
@@ -42,25 +43,33 @@ const makeRequest = async (req: Request): Promise<any> => {
             console.error(i);
             return undefined;
         })
-    .then(i => i.Reply.Result)
+    .then(i => i?.Reply?.Result)
 }
 
-export const getData = (name: string, id: string): Promise<InviteDataResponse> => makeRequest({
-    id,
-    name,
-    mode: 'get'
-}).then(i => {
-    return {
-        ...i,
-        startDate: new Date(Date.parse(i.startdate)),
-        endDate: new Date(Date.parse(i.enddate)),
-        inviteState: i.invitestate
-    }
-});
-
-export const invite = (name: string, id: string, email: string): Promise<InviteDataResponse> => makeRequest({
+export const getData = (name: string, id: string, email: string): Promise<InviteDataResponse> => makeRequest({
     id,
     name,
     email,
-    mode: 'invite'
+    mode: 'get'
+}).then(i => {
+    if (i) {        
+        return {
+            ...i,
+            startDate: new Date(Date.parse(i.startdate)),
+            endDate: new Date(Date.parse(i.enddate)),
+            inviteState: i.invitestate,
+            locationUrl: i.locationurl
+        }
+    }
+    return i;
 });
+
+export const invite = (name: string, id: string, email: string): Promise<InviteDataResponse> => {
+    window.localStorage.setItem("email", email);
+    return makeRequest({
+        id,
+        name,
+        email,
+        mode: 'invite'
+    })
+};

@@ -4,16 +4,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import styles from './index.module.scss';
 
-const Example: InviteDataResponse = {
-    startDate: new Date(Date.now()),
-    endDate: new Date(Date.now()),
-    inviteState: "not-invited",
-    location: "no-where",
-    locationUrl: "https://nntn.nl/",
-    name: "Cursed Christmas Dinner"
-
-}
-
 type NJSQuery = {
     id: string;
     name: string;
@@ -22,12 +12,12 @@ type NJSQuery = {
 export default function Page() {
     const router = useRouter()
     const { id, name } = router.query as NJSQuery;
-    const [data, setData] = useState<InviteDataResponse | undefined>(undefined);
+    const [data, setData] = useState<InviteDataResponse | undefined | null>(undefined);
 
     useEffect(() => {
         if (name && id) {            
-            getData(name, id).then(i => {
-                setData(i)
+            getData(name, id, window.localStorage.getItem("email") ?? "").then(i => {
+                setData(i === undefined ? null : i)
             });
         }
     }, [name, id]);
@@ -44,8 +34,10 @@ export default function Page() {
             <div className={styles.page}>
                 <main className={styles.main}>
                     {data ? <CalendarView evId={id} alias={name} {...data} /> : <div>
-                        <h1 className={styles.loadingheader}>Loading data...</h1>
-                        <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn</p>
+                        {data === null ? <><h1 className={styles.loadingheader}>Error</h1>
+                            <p>Either the url you gave is wrong<br />Or Martijn broke something<br />Have you tried to refresh?</p></> :
+                            <><h1 className={styles.loadingheader}>Loading data...</h1>
+                            <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn </p></>}
                     </div>}
                 </main>
             </div>
@@ -61,7 +53,7 @@ type InviteRoute = {
 
 type CalendarViewProps = InviteDataResponse & InviteRoute
 
-const CalendarView = ({ location, locationUrl, startDate, name, inviteState, alias, evId }: CalendarViewProps) => {
+const CalendarView = ({ location, locationUrl, startDate, endDate, name, inviteState, alias, evId }: CalendarViewProps) => {
     
     return <> <section>
         <h1>{name}</h1>
@@ -74,13 +66,14 @@ const CalendarView = ({ location, locationUrl, startDate, name, inviteState, ali
                 year: "numeric"
             })}<br />{startDate.toLocaleString("en-GB", {
                 timeStyle:"short"
-            })}-{startDate.toLocaleString("en-GB", {
+            })}-{endDate.toLocaleString("en-GB", {
                 minute: "numeric",
                 hour: 'numeric',
                 timeZoneName: "short"
             })}</p>
             {location ? (<><div>🏡</div>
-                <p>{location} {locationUrl ? <a href="https://nntn.nl/" target="_blank" rel="noreferrer" className={styles.car}>🚗</a> : ""}</p></>) : <></>}
+                <a href={"https://www.google.com/maps/search/" + location} target="_blank" rel="noreferrer" className={styles.car}>{location} </a></>) : <></>}
+            {locationUrl ? <><div>🌍</div><a href={locationUrl} target="_blank" rel="noreferrer" className={styles.car}>{ locationUrl}</a></> : ""}
             
         </div>
     </section>
@@ -94,12 +87,12 @@ const CalendarView = ({ location, locationUrl, startDate, name, inviteState, ali
 }
 
 type FormViewProps = Pick<InviteDataResponse, "inviteState"> & InviteRoute;
-const FormView = ({ evId, alias , inviteState }: FormViewProps) => {
-    const [email, setEmail] = useState<string | undefined>(undefined);
+const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
+    const [email, setEmail] = useState<string | null>(window.localStorage.getItem("email"));
     if (inviteState === "invited") {
         return <h2 className={styles.loadingheader}>You{"'"}ve been invited!</h2>
     } else if (inviteState === 'confirming') {
-        return <p className={styles.verify}>To make sure my invites are not abused I need to verify everything. <br/>Please hold on</p>
+        return <p className={styles.verify}>Hold on. <br/> I'm verifying {window.localStorage.getItem("email")}. <br/>to make sure my invites are not abused.</p>
     } else if (inviteState === 'not-invited') {
         return <form onSubmit={(ev) => {
             ev.preventDefault();
@@ -107,7 +100,7 @@ const FormView = ({ evId, alias , inviteState }: FormViewProps) => {
                 invite(alias, evId, email)
             }
         }}>
-            <input type="email" name="email" placeholder='example@example.org' onChange={(ev)=> setEmail(ev.target.value)} />
+            <input type="email" name="email" placeholder='example@example.org' onChange={(ev)=> setEmail(ev.target.value)} value={email ?? ""} />
             <input type="submit" value="Send me a calendar invite" />
         </form>
     } else {
