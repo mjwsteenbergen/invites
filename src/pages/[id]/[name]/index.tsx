@@ -92,7 +92,7 @@ const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
     if (inviteState === "invited") {
         return <h2 className={styles.loadingheader}>You{"'"}ve been invited!</h2>
     } else if (inviteState === 'confirming') {
-        return <p className={styles.verify}>Hold on. <br /> I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. Incorrect email? <span onClick={() => { window.localStorage.removeItem("email"); window.location.reload()}}>Change it</span></p>
+        return <p className={styles.verify}>Hold on. <br /> I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br/> Incorrect email? <span onClick={() => { window.localStorage.removeItem("email"); window.location.reload()}}>Change it</span></p>
     } else if (inviteState === 'not-invited') {
         return <form onSubmit={(ev) => {
             ev.preventDefault();
