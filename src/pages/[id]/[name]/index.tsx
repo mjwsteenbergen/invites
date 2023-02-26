@@ -97,8 +97,9 @@ const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
         return <form onSubmit={(ev) => {
             ev.preventDefault();
             if (email) {
-                invite(alias, evId, email)
-                window.location.reload();
+                invite(alias, evId, email).then(() => {
+                    window.location.reload();
+                });
             }
         }}>
             <input type="email" name="email" placeholder='example@example.org' onChange={(ev)=> setEmail(ev.target.value)} value={email ?? ""} />
