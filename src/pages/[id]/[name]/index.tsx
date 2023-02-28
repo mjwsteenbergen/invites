@@ -2,7 +2,7 @@ import { getData, invite, InviteDataResponse } from '@/api/laurentia';
 import Head from 'next/head'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import styles from './index.module.scss';
+// import styles from './index.module.scss';
 
 type NJSQuery = {
     id: string;
@@ -30,13 +30,12 @@ export default function Page() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-
-            <div className={styles.page}>
-                <main className={styles.main}>
+            <div className='w-screen h-screen flex justify-center items-center'>
+                <main className='flex gap-24 max-lg:flex-col'>
                     {data ? <CalendarView evId={id} alias={name} {...data} /> : <div>
-                        {data === null ? <><h1 className={styles.loadingheader}>Error</h1>
+                        {data === null ? <><h1 >Error</h1>
                             <p>Either the url you gave is wrong<br />Or Martijn broke something<br />Have you tried to refresh?</p></> :
-                            <><h1 className={styles.loadingheader}>Loading data...</h1>
+                            <><h1 >Loading data...</h1>
                             <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn </p></>}
                     </div>}
                 </main>
@@ -55,11 +54,11 @@ type CalendarViewProps = InviteDataResponse & InviteRoute
 
 const CalendarView = ({ location, locationUrl, startDate, endDate, name, inviteState, alias, evId }: CalendarViewProps) => {
     
-    return <> <section>
-        <h1>{name}</h1>
-        <div className='grid'>
-            <div>⌚</div>
-            <p>{startDate.toLocaleString("en-GB", {
+    return <> <section className='mt-4 mb-4'>
+        <h1 className='text-4xl xl:text-6xl'>{name}</h1>
+        <div className='grid grid-cols-[auto_1fr] gap-x-2'>
+            <p className='xl:text-xl'>⌚</p>
+            <p className='xl:text-xl'>{startDate.toLocaleString("en-GB", {
                 weekday: "long",
                 day: "2-digit",
                 month: "short",
@@ -71,17 +70,14 @@ const CalendarView = ({ location, locationUrl, startDate, endDate, name, inviteS
                 hour: 'numeric',
                 timeZoneName: "short"
             })}</p>
-            {location ? (<><div>🏡</div>
-                <a href={"https://www.google.com/maps/search/" + location} target="_blank" rel="noreferrer" className={styles.car}>{location} </a></>) : <></>}
-            {locationUrl ? <><div>🌍</div><a href={locationUrl} target="_blank" rel="noreferrer" className={styles.car}>{ locationUrl}</a></> : ""}
+            {location ? (<><p className='xl:text-xl'>🏡</p>
+                <p className='xl:text-xl'><a href={"https://www.google.com/maps/search/" + location} target="_blank" rel="noreferrer" >{location} </a></p></>) : <></>}
+            {locationUrl ? <><p className='xl:text-xl'>🌍</p><p className='xl:text-xl'><a href={locationUrl} target="_blank" rel="noreferrer" >{locationUrl}</a></p></> : ""}
             
         </div>
     </section>
-        <div className={styles.divider}></div>
-        <div className={styles.form}>
-            <FormView evId={evId} inviteState={inviteState} alias={alias} />
-        </div>
-
+        <div className='w-px bg-gray-500 self-stretch max-lg:w-full max-lg:h-[1px]'></div>
+        <FormView evId={evId} inviteState={inviteState} alias={alias} />
     </>
 
 }
@@ -90,9 +86,9 @@ type FormViewProps = Pick<InviteDataResponse, "inviteState"> & InviteRoute;
 const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
     const [email, setEmail] = useState<string | null>(window.localStorage.getItem("email"));
     if (inviteState === "invited") {
-        return <h2 className={styles.loadingheader}>You{"'"}ve been invited!</h2>
+        return <h2 className='self-center' >You{"'"}ve been invited!</h2>
     } else if (inviteState === 'confirming') {
-        return <p className={styles.verify}>Hold on. <br /> I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br/> Incorrect email? <span onClick={() => { window.localStorage.removeItem("email"); window.location.reload()}}>Change it</span></p>
+        return <p className='self-center text-center'>I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br/> Incorrect email? <b className='cursor-pointer' onClick={() => { window.localStorage.removeItem("email"); window.location.reload()}}>Change it</b></p>
     } else if (inviteState === 'not-invited') {
         return <form onSubmit={(ev) => {
             ev.preventDefault();
@@ -101,9 +97,9 @@ const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
                     window.location.reload();
                 });
             }
-        }}>
-            <input type="email" name="email" placeholder='example@example.org' onChange={(ev)=> setEmail(ev.target.value)} value={email ?? ""} />
-            <input type="submit" value="Send me a calendar invite" />
+        }} className='flex flex-col items-end justify-center'>
+            <input type="email" name="email" className='xl:text-xl outline-none focus:border-gray-500 text-center rounded-md pl-4 pr-4 pt-1 pb-1 border-gray-50 border-2 min-w-[30ch] max-sm:min-w-full' placeholder='example@example.org' onChange={(ev) => setEmail(ev.target.value)} value={email ?? ""} />
+            <input type="submit" className='mt-6 text-sm xl:text-md pl-5 pr-5 pt-2 pb-2 bg-gray-50 rounded-lg font-bold hover:bg-gray-200 cursor-pointer' value="Send me a calendar invite" />
         </form>
     } else {
         console.error(inviteState)
