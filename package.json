@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "preinstall": "git submodule init && git submodule update && cp design-system/src/tailwind.css src/styles/globals.css",
+    "preinstall": "mkdir src/styles && cp design-system/src/tailwind.css src/styles/globals.css",
     "start": "next start",
     "lint": "next lint"
   },
