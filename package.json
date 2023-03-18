@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "preinstall": "ln -s design-system/src/tailwind.css src/styles/globals.css",
+    "preinstall": "ln -sf design-system/src/tailwind.css src/styles/globals.css",
     "start": "next start",
     "lint": "next lint"
   },
