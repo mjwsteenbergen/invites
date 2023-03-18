@@ -2,7 +2,6 @@ import { getData, invite, InviteDataResponse } from '@/api/laurentia';
 import Head from 'next/head'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-// import styles from './index.module.scss';
 
 type NJSQuery = {
     id: string;
@@ -31,7 +30,7 @@ export default function Page() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <div className='w-screen h-screen flex justify-center items-center'>
-                <main className='flex gap-24 max-lg:flex-col'>
+                <main className='flex gap-24 max-lg:flex-col ml-6 mr-6'>
                     {data ? <CalendarView evId={id} alias={name} {...data} /> : <div>
                         {data === null ? <><h1 >Error</h1>
                             <p>Either the url you gave is wrong<br />Or Martijn broke something<br />Have you tried to refresh?</p></> :
@@ -71,8 +70,8 @@ const CalendarView = ({ location, locationUrl, startDate, endDate, name, inviteS
                 timeZoneName: "short"
             })}</p>
             {location ? (<><p className='xl:text-xl'>🏡</p>
-                <p className='xl:text-xl'><a href={"https://www.google.com/maps/search/" + location} target="_blank" rel="noreferrer" >{location} </a></p></>) : <></>}
-            {locationUrl ? <><p className='xl:text-xl'>🌍</p><p className='xl:text-xl'><a href={locationUrl} target="_blank" rel="noreferrer" >{locationUrl}</a></p></> : ""}
+                <p className='xl:text-xl'><a href={"https://www.google.com/maps/search/" + location} className="reset" target="_blank" rel="noreferrer" >{location} </a></p></>) : <></>}
+            {locationUrl ? <><p className='xl:text-xl'>🌍</p><p className='xl:text-xl'><a href={locationUrl} target="_blank" className="reset" rel="noreferrer" >{locationUrl}</a></p></> : ""}
             
         </div>
     </section>
@@ -98,8 +97,8 @@ const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
                 });
             }
         }} className='flex flex-col items-end justify-center'>
-            <input type="email" name="email" className='xl:text-xl outline-none focus:border-gray-500 text-center rounded-md pl-4 pr-4 pt-1 pb-1 border-gray-50 border-2 min-w-[30ch] max-sm:min-w-full' placeholder='example@example.org' onChange={(ev) => setEmail(ev.target.value)} value={email ?? ""} />
-            <input type="submit" className='mt-6 text-sm xl:text-md pl-5 pr-5 pt-2 pb-2 bg-gray-50 rounded-lg font-bold hover:bg-gray-200 cursor-pointer' value="Send me a calendar invite" />
+            <input type="email" name="email" className='xl:text-xl text-center pl-4 pr-4 pt-1 pb-1  min-w-[30ch] max-sm:min-w-full' placeholder='example@example.org' onChange={(ev) => setEmail(ev.target.value)} value={email ?? ""} />
+            <input type="submit" className='mt-6 text-sm xl:text-md' value="Send me a calendar invite" />
         </form>
     } else {
         console.error(inviteState)
