@@ -34,3 +34,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+### CUSTOM ###
+
+# From design system
+src/styles/globals.css
