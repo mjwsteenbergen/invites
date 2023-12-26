@@ -11,8 +11,20 @@ type NJSQuery = {
 
 export default function Page() {
     const queryClient = new QueryClient();
+    const router = useRouter();
+    const { id, name } = router.query as NJSQuery;
     return <QueryClientProvider client={queryClient}>
-        <PageApp />
+        <>
+            <Head>
+                <title>Invites</title>
+                <meta name="description" content={"You've been invited to an event"} />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <main className='flex flex-col min-h-screen justify-items-center items-center justify-center m-5 py-8 '>
+                <PageApp />
+            </main>
+        </>
     </QueryClientProvider>
 
 }
@@ -45,22 +57,14 @@ const PageApp = () => {
     }
     return (
         <>
-            <Head>
-                <title>Invites</title>
-                <meta name="description" content={"You've been invited to " + name} />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-            <main className='flex flex-col min-h-screen justify-items-center items-center justify-center m-5 py-8'>
-                <div>
-                    <h1 className='self-start'><span className='text-5xl'>{data.name}</span></h1>
-                    <div className='flex flex-col xl:flex-row gap-x-10'>
-                        <CalendarView {...data} />
-                        <div className='w-px bg-gray-500 self-stretch max-lg:h-[1px]'></div>
-                        <FormView inviteState={data.inviteState} />
-                    </div>
+            <div>
+                <h1 className='self-start'><span className='text-5xl'>{data.name}</span></h1>
+                <div className='grid gap-x-10 xl:grid-flow-col justify-start'>
+                    <CalendarView {...data} />
+                    <div className='w-px bg-gray-500 self-stretch max-lg:h-[1px]'></div>
+                    <FormView inviteState={data.inviteState} />
                 </div>
-            </main>
+            </div>
         </>
     )
 }
@@ -73,7 +77,7 @@ const FormView = ({ inviteState }: FormViewProps) => {
 
     const content = () => {
         if (inviteState === "invited") {
-            return <h2 className='self-center' >You{"'"}ve been invited!</h2>
+            return <p className='self-center' >You{"'"}ve been invited!</p>
         } else if (inviteState === 'confirming') {
             return <p className='self-center text-center'>I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br /> Incorrect email? <b className='cursor-pointer' onClick={() => { window.localStorage.removeItem("email"); window.location.reload() }}>Change it</b></p>
         } else if (inviteState === 'not-invited') {
@@ -90,7 +94,7 @@ const FormView = ({ inviteState }: FormViewProps) => {
             </form>
         } else {
             console.error(inviteState)
-            return <h2>Undefined state. Please let Martijn know</h2>
+            return <p className='text-red-400'>Undefined state. Please let Martijn know</p>
         }
     }
 
@@ -106,7 +110,7 @@ const CalendarView = ({ name, startDate, endDate, body, location, locationUrl }:
     return <section>
 
         <div data-type="table" className='grid grid-cols-[auto_1fr] gap-x-2'>
-            <span>🕰️</span><Date start={startDate} end={endDate} />
+            <p>🕰️</p><Date start={startDate} end={endDate} />
             <LocationUrl url={locationUrl} />
             <LocationPlace place={location} />
         </div>
