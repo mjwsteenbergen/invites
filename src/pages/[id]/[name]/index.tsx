@@ -123,7 +123,7 @@ const CalendarView = ({ name, startDate, endDate, body, location, locationUrl }:
 
 const LocationUrl = ({ url }: { url?: string }) => {
     if (url) {
-        return <><p>🌎</p><p><a href={url} target='_blank'>Online</a></p></>
+        return <><p>🌎</p><p><a href={url} target='_blank' rel="noreferrer">Online</a></p></>
     }
     return null;
 }
