@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "preinstall": "mkdir src/styles && cp design-system/src/tailwind.css src/styles/globals.css",
+    "preinstall": "git submodule init && git submodule update && mkdir -p src/styles && cp design-system/src/tailwind.css src/styles/globals.css",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@next/font": "13.1.6",
+    "@tanstack/react-query": "^5.15.0",
     "@types/node": "18.13.0",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",

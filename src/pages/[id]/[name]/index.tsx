@@ -1,7 +1,8 @@
 import { getData, invite, InviteDataResponse } from '@/api/laurentia';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import Head from 'next/head'
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type NJSQuery = {
     id: string;
@@ -9,18 +10,39 @@ type NJSQuery = {
 }
 
 export default function Page() {
-    const router = useRouter()
+    const queryClient = new QueryClient();
+    return <QueryClientProvider client={queryClient}>
+        <PageApp />
+    </QueryClientProvider>
+
+}
+
+const PageApp = () => {
+    const router = useRouter();
     const { id, name } = router.query as NJSQuery;
-    const [data, setData] = useState<InviteDataResponse | undefined | null>(undefined);
+    const { isLoading, data } = useQuery({
+        queryKey: ["event", id, name],
+        queryFn: () => {
+            if (name && id) {
+                return getData(name, id, window.localStorage.getItem("email") ?? "")
+            }
+            console.error("No name or id", router)
+            throw Error();
+        },
 
-    useEffect(() => {
-        if (name && id) {            
-            getData(name, id, window.localStorage.getItem("email") ?? "").then(i => {
-                setData(i === undefined ? null : i)
-            });
-        }
-    }, [name, id]);
+        staleTime: Number.MAX_VALUE,
+    })
 
+    if (isLoading) {
+        return <><h1 >Loading data...</h1>
+            <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn </p></>
+    }
+
+
+    if (data === null || data === undefined) {
+        return <><h1 >Error</h1>
+            <p>Either the url you gave is wrong<br />Or Martijn broke something<br />Have you tried to refresh?</p></>
+    }
     return (
         <>
             <Head>
@@ -29,79 +51,98 @@ export default function Page() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <div className='w-screen h-screen flex justify-center items-center'>
-                <main className='flex gap-24 max-lg:flex-col ml-6 mr-6'>
-                    {data ? <CalendarView evId={id} alias={name} {...data} /> : <div>
-                        {data === null ? <><h1 >Error</h1>
-                            <p>Either the url you gave is wrong<br />Or Martijn broke something<br />Have you tried to refresh?</p></> :
-                            <><h1 >Loading data...</h1>
-                            <p>If this takes too long, please refresh.<br /> If that doesn{"'"}t work, poke Martijn </p></>}
-                    </div>}
-                </main>
-            </div>
+            <main className='flex flex-col min-h-screen justify-items-center items-center justify-center m-5 py-8'>
+                <div>
+                    <h1 className='self-start'><span className='text-5xl'>{data.name}</span></h1>
+                    <div className='flex flex-col xl:flex-row gap-x-10'>
+                        <CalendarView {...data} />
+                        <div className='w-px bg-gray-500 self-stretch max-lg:h-[1px]'></div>
+                        <FormView inviteState={data.inviteState} />
+                    </div>
+                </div>
+            </main>
         </>
     )
 }
 
+type FormViewProps = Pick<InviteDataResponse, "inviteState">;
+const FormView = ({ inviteState }: FormViewProps) => {
+    const [email, setEmail] = useState<string | null>(window.localStorage.getItem("email"));
+    const router = useRouter();
+    const { id, name } = router.query as NJSQuery;
 
-type InviteRoute = {
-    alias: string;
-    evId: string;
-};
+    const content = () => {
+        if (inviteState === "invited") {
+            return <h2 className='self-center' >You{"'"}ve been invited!</h2>
+        } else if (inviteState === 'confirming') {
+            return <p className='self-center text-center'>I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br /> Incorrect email? <b className='cursor-pointer' onClick={() => { window.localStorage.removeItem("email"); window.location.reload() }}>Change it</b></p>
+        } else if (inviteState === 'not-invited') {
+            return <form onSubmit={(ev) => {
+                ev.preventDefault();
+                if (email) {
+                    invite(name, id, email).then(() => {
+                        window.location.reload();
+                    });
+                }
+            }} className='flex flex-col items-start justify-center'>
+                <input type="email" name="email" className='xl:text-xl text-center pl-4 pr-4 pt-1 pb-1  min-w-[30ch] max-sm:min-w-full' placeholder='example@example.org' onChange={(ev) => setEmail(ev.target.value)} value={email ?? ""} />
+                <input type="submit" className='mt-6 text-sm xl:text-md' value="Send me a calendar invite" />
+            </form>
+        } else {
+            console.error(inviteState)
+            return <h2>Undefined state. Please let Martijn know</h2>
+        }
+    }
 
-type CalendarViewProps = InviteDataResponse & InviteRoute
-
-const CalendarView = ({ location, locationUrl, startDate, endDate, name, inviteState, alias, evId }: CalendarViewProps) => {
-    
-    return <> <section className='mt-4 mb-4'>
-        <h1 className='text-4xl xl:text-6xl'>{name}</h1>
-        <div className='grid grid-cols-[auto_1fr] gap-x-2'>
-            <p className='xl:text-xl'>⌚</p>
-            <p className='xl:text-xl'>{startDate.toLocaleString("en-GB", {
-                weekday: "long",
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            })}<br />{startDate.toLocaleString("en-GB", {
-                timeStyle:"short"
-            })}-{endDate.toLocaleString("en-GB", {
-                minute: "numeric",
-                hour: 'numeric',
-                timeZoneName: "short"
-            })}</p>
-            {location ? (<><p className='xl:text-xl'>🏡</p>
-                <p className='xl:text-xl'><a href={"https://www.google.com/maps/search/" + location} className="reset" target="_blank" rel="noreferrer" >{location} </a></p></>) : <></>}
-            {locationUrl ? <><p className='xl:text-xl'>🌍</p><p className='xl:text-xl'><a href={locationUrl} target="_blank" className="reset" rel="noreferrer" >{locationUrl}</a></p></> : ""}
-            
-        </div>
+    return <section className='w-full'>
+        <h2>Sign me up!</h2>
+        {content()}
     </section>
-        <div className='w-px bg-gray-500 self-stretch max-lg:w-full max-lg:h-[1px]'></div>
-        <FormView evId={evId} inviteState={inviteState} alias={alias} />
-    </>
+
 
 }
 
-type FormViewProps = Pick<InviteDataResponse, "inviteState"> & InviteRoute;
-const FormView = ({ evId, alias, inviteState }: FormViewProps) => {
-    const [email, setEmail] = useState<string | null>(window.localStorage.getItem("email"));
-    if (inviteState === "invited") {
-        return <h2 className='self-center' >You{"'"}ve been invited!</h2>
-    } else if (inviteState === 'confirming') {
-        return <p className='self-center text-center'>I{"'"}m verifying {window.localStorage.getItem("email")} <br />to make sure my invites are not abused. <br/> Incorrect email? <b className='cursor-pointer' onClick={() => { window.localStorage.removeItem("email"); window.location.reload()}}>Change it</b></p>
-    } else if (inviteState === 'not-invited') {
-        return <form onSubmit={(ev) => {
-            ev.preventDefault();
-            if (email) {
-                invite(alias, evId, email).then(() => {
-                    window.location.reload();
-                });
-            }
-        }} className='flex flex-col items-end justify-center'>
-            <input type="email" name="email" className='xl:text-xl text-center pl-4 pr-4 pt-1 pb-1  min-w-[30ch] max-sm:min-w-full' placeholder='example@example.org' onChange={(ev) => setEmail(ev.target.value)} value={email ?? ""} />
-            <input type="submit" className='mt-6 text-sm xl:text-md' value="Send me a calendar invite" />
-        </form>
-    } else {
-        console.error(inviteState)
-        return <h2>Undefined state. Please let Martijn know</h2>
+const CalendarView = ({ name, startDate, endDate, body, location, locationUrl }: InviteDataResponse) => {
+    return <section>
+
+        <div data-type="table" className='grid grid-cols-[auto_1fr] gap-x-2'>
+            <span>🕰️</span><Date start={startDate} end={endDate} />
+            <LocationUrl url={locationUrl} />
+            <LocationPlace place={location} />
+        </div>
+        {body && <>
+            <h2>More info</h2>
+            <div className='break-all' dangerouslySetInnerHTML={{ __html: body }}></div>
+        </>}
+    </section>
+}
+
+const LocationUrl = ({ url }: { url?: string }) => {
+    if (url) {
+        return <><p>🌎</p><p><a href={url} target='_blank'>Online</a></p></>
     }
+    return null;
+}
+
+const LocationPlace = ({ place }: { place?: string }) => {
+    if (place) {
+        return <><p>🏡</p>
+            <a href={"https://www.google.com/maps/search/" + place} className="reset" target="_blank" rel="noreferrer" >{place} </a></>
+    }
+    return null;
+}
+
+const Date = ({ start, end }: { start: Date, end: Date }) => {
+    return <p>{start.toLocaleString("en-GB", {
+        timeStyle: "short"
+    })}-{end.toLocaleString("en-GB", {
+        minute: "numeric",
+        hour: 'numeric',
+        timeZoneName: "short"
+    })}<br />{start.toLocaleString("en-GB", {
+        weekday: "long",
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    })}</p>
 }

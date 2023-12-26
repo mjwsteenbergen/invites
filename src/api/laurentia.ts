@@ -30,6 +30,7 @@ export type InviteDataResponse = {
     endDate: Date;
     location?: string;
     locationUrl?: string;
+    body: string;
     inviteState: "invited" | "confirming" | "not-invited";
 }
 
