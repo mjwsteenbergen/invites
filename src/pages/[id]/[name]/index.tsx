@@ -21,7 +21,7 @@ export default function Page() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className='flex flex-col min-h-screen justify-items-center items-center justify-center m-5 py-8 '>
+            <main className='flex flex-col min-h-screen justify-items-center items-center justify-center mx-5 py-8 '>
                 <PageApp />
             </main>
         </>
