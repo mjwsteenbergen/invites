@@ -58,8 +58,8 @@ const PageApp = () => {
     return (
         <>
             <div>
-                <h1 className='self-start'><span className='text-5xl'>{data.name}</span></h1>
-                <div className='grid gap-x-10 xl:grid-flow-col justify-start'>
+                <h1 className='self-start'><span className='md:text-4xl lg:text-5xl'>{data.name}</span></h1>
+                <div className='grid gap-x-10 lg:grid-flow-col justify-start'>
                     <CalendarView {...data} />
                     <div className='w-px bg-gray-500 self-stretch max-lg:h-[1px]'></div>
                     <FormView inviteState={data.inviteState} />
@@ -131,7 +131,7 @@ const LocationUrl = ({ url }: { url?: string }) => {
 const LocationPlace = ({ place }: { place?: string }) => {
     if (place) {
         return <><p>🏡</p>
-            <a href={"https://www.google.com/maps/search/" + place} className="reset" target="_blank" rel="noreferrer" >{place} </a></>
+            <p><a href={"https://www.google.com/maps/search/" + place} target="_blank" rel="noreferrer" >{place} </a></p></>
     }
     return null;
 }
